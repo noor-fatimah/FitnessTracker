@@ -1,0 +1,423 @@
+#include <iostream>
+#include <string>
+#include <unistd.h>
+
+using namespace std;
+
+struct Tracker {
+    int id;
+    string date;
+    string time;
+    string type;
+    int calories;
+    int steps;
+    float km;
+    float b_cal;
+    string gender;
+    double bmi;
+    int weight;
+    int feet;
+    int inches;
+};
+
+struct DailyGoals {
+    int dailyCalories;
+    int dailySteps;
+};
+
+Tracker Track[50];
+int writeIndex = 0;
+int count = 0;
+DailyGoals dailyGoals;
+
+void take_record_from_user(int index) {
+    int id;
+    int i;
+    system("color F5");
+
+    while (true) {
+        cout << "Enter ID: ";
+        cin >> id;
+
+        for (i = 0; i < writeIndex; i++) {
+            if (id == Track[i].id) {
+                cout << "Same ID already exists. Enter a new ID" << endl;
+                break;
+            }
+        }
+
+        if (i >= writeIndex) {
+            break;
+        }
+    }
+
+    Track[index].id = id;
+
+    cout << "Enter Gender: ";
+    cin >> Track[index].gender;
+
+    cout << "Enter Date: ";
+    cin >> Track[index].date;
+
+    cout << "Enter Time: ";
+    cin >> Track[index].time;
+
+    cout << "Enter Type: ";
+    cin >> Track[index].type;
+
+    cout << "Enter weight in kg: ";
+    cin >> Track[index].weight;
+
+    cout << "Enter height in feet: ";
+    cin >> Track[index].feet;
+
+    cout << "Enter remaining height in inches: ";
+    cin >> Track[index].inches;
+
+    cout << "Enter Calories: ";
+    cin >> Track[index].calories;
+
+    cout << "Enter steps: ";
+    cin >> Track[index].steps;
+
+    cout << "Calculating covered distance...." << endl;
+    sleep(2);
+    cout << "******************************" << endl;
+    Track[index].km = Track[index].steps * 0.00076;
+    cout << "\t\t\tCovered distance: " << Track[index].km << " km" << endl;
+    cout << "******************************" << endl;
+    sleep(1);
+    cout << "Calculating calories burned...." << endl;
+    sleep(2);
+    cout << "******************************" << endl;
+    Track[index].b_cal = Track[index].steps * 0.05;
+    cout << "\t\t\tCalories burned: " << Track[index].b_cal << endl;
+    cout << "******************************" << endl;
+    sleep(4);
+    system("cls");
+    system("color F4");
+}
+
+void new_record() {
+    take_record_from_user(writeIndex);
+    writeIndex++;
+}
+
+void view_record() {
+    system("color F3");
+
+    if (writeIndex == 0) {
+        cout << "No records have been entered yet." << endl;
+        sleep(2);
+        system("cls");
+    }
+
+    cout << "***** USER'S INFORMATION ******" << endl;
+
+    for (int i = 0; i < writeIndex; ++i) {
+        system("color F3");
+        cout << "ID: " << Track[i].id << "\n";
+        cout << "Gender: " << Track[i].gender << "\n";
+        cout << "Date: " << Track[i].date << "\n";
+        cout << "Time: " << Track[i].time << "\n";
+        cout << "Type: " << Track[i].type << "\n";
+        cout << "Calories: " << Track[i].calories << "\n";
+        cout << "Steps: " << Track[i].steps << "\n";
+        cout << "KM: " << Track[i].km << "\n";
+        cout << "Burned Calories: " << Track[i].b_cal << "\n\n";
+        cout << "Weight: " << Track[i].weight << "\n";
+        cout << "Height: " << Track[i].feet << "," << Track[i].inches << "\n";
+        sleep(3);
+    }
+
+    system("cls");
+    system("color F4");
+}
+
+void edit_record() {
+    system("color F1");
+
+    if (writeIndex == 0) {
+        cout << "No records have been entered yet." << endl;
+        sleep(2);
+        system("cls");
+    } else if (writeIndex != 0) {
+        system("color F1");
+        int targetId;
+        cout << "Enter the ID of the record to edit: ";
+        cin >> targetId;
+
+        for (int i = 0; i < writeIndex; ++i) {
+            if (Track[i].id == targetId) {
+                cout << "Enter new values for the record:\n";
+                take_record_from_user(i);
+                return;
+            }
+        }
+
+        cout << "Record with ID " << targetId << " not found.\n";
+        sleep(5);
+        system("cls");
+    }
+
+    system("color F4");
+}
+
+void delete_record() {
+    system("color F6");
+
+    if (writeIndex == 0) {
+        cout << "No records have been entered yet." << endl;
+        sleep(2);
+        system("cls");
+    } else if (writeIndex != 0) {
+        system("color F6");
+        int targetId;
+
+        cout << "Enter the ID of the record to delete: ";
+        cin >> targetId;
+
+        for (int i = 0; i < writeIndex; ++i) {
+            if (Track[i].id == targetId) {
+                for (int j = i; j < writeIndex - 1; ++j) {
+                    Track[j] = Track[j + 1];
+                }
+                writeIndex--;
+                cout << "Record with ID " << targetId << " deleted.\n";
+                sleep(2);
+                system("cls");
+                return;
+            }
+        }
+
+        cout << "Record with ID " << targetId << " not found.\n";
+        sleep(5);
+        system("cls");
+    }
+
+    system("color F4");
+}
+
+void calculateBMI() {
+    system("color F8");
+
+    if (writeIndex == 0) {
+        cout << "No records have been entered yet." << endl;
+        sleep(5);
+        system("cls");
+    } else if (writeIndex != 0) {
+        system("color F8");
+
+        cout << "***** USER'S BMI ******" << endl;
+
+        for (int i = 0; i < writeIndex; i++) {
+            cout << "User Id " << i + 1 << ":" << endl;
+            double heightInMeters = (Track[i].feet * 0.3048) + (Track[i].inches * 0.0254);
+            Track[i].bmi = Track[i].weight / (heightInMeters * heightInMeters);
+            cout << "BMI(Body Mass Index) = " << Track[i].bmi << " kg/m^2" << endl;
+
+            if (Track[i].bmi < 18.5) {
+                cout << "You are underweight. Take care of your health!" << endl;
+                sleep(3);
+            } else if (Track[i].bmi >= 18.5 && Track[i].bmi <= 24.9) {
+                cout << "You have a normal weight. Keep up the good work!" << endl;
+                sleep(3);
+            } else if (Track[i].bmi >= 25 && Track[i].bmi <= 29.9) {
+                cout << "You are overweight. Consider making some healthy lifestyle changes." << endl;
+                sleep(3);
+            } else {
+                cout << "Your BMI is outside the normal range. It's best to consult a healthcare professional." << endl;
+                sleep(3);
+            }
+
+            count++;
+        }
+
+        system("cls");
+    } else {
+        cout << "Invalid.." << endl;
+    }
+
+    system("color F4");
+}
+
+void generateReport() {
+    system("color F0");
+
+    if (writeIndex == 0) {
+        cout << "No records have been entered yet." << endl;
+        sleep(2);
+        system("cls");
+    } else if (writeIndex != 0) {
+        cout << "\t\t\t\t----------------------------" << endl;
+        cout << "\t\t\t\t\tGenerated Report!" << endl;
+        cout << "\t\t\t\t----------------------------" << endl;
+
+        cout << "ID\tGender\tDate\tTime\tType\tCalories\tSteps\tKM\tBurned Calories" << endl
+             << endl;
+
+        for (int i = 0; i < writeIndex; i++) {
+            system("color F0");
+            cout << Track[i].id << "\t" << Track[i].gender << "\t" << Track[i].date << "\t" << Track[i].time << "\t" << Track[i].type << "\t"
+                 << Track[i].calories << "\t\t" << Track[i].steps << "\t" << Track[i].km << "\t" << Track[i].b_cal << endl;
+        }
+
+        cout << "\t\t\t\t**********" << endl;
+        cout << "\t\t\t\tBMI"
+             << "\t  "
+             << "BMI Health"
+             << "\t"
+             << "ID"
+             << "\t" << endl
+             << endl;
+
+        for (int i = 0; i < writeIndex; i++) {
+            cout << "\t\t\t\t";
+            if (Track[i].bmi < 18.5)
+                cout << Track[i].bmi << "\t  "
+                     << "underweight"
+                     << "\t" << Track[i].id << endl;
+            else if (Track[i].bmi >= 18.5 && Track[i].bmi <= 24.9)
+                cout << Track[i].bmi << "\t  "
+                     << "normal weight"
+                     << "\t" << Track[i].id << endl;
+            else if (Track[i].bmi >= 25 && Track[i].bmi <= 29.9)
+                cout << Track[i].bmi << "\t  "
+                     << "overweight"
+                     << "\t" << Track[i].id << endl;
+            else
+                cout << Track[i].bmi << "\t  "
+                     << "out of the range"
+                     << "\t" << Track[i].id << endl;
+        }
+
+        cout << "Press Enter to go back to the main menu...";
+        cin.ignore();
+        cin.get();
+    } else {
+        cout << "Invalid";
+    }
+
+    sleep(1);
+    system("cls");
+    system("color F4");
+}
+
+int main() {
+    system("color F4");
+
+    char option;
+
+    cout << "\t\t\t\t***********************************" << endl;
+    cout << "\t\t\t\t**WELCOME TO FITNESS TRACKER**" << endl;
+    cout << "\t\t\t\t***********************************" << endl;
+
+    do {
+        cout << endl;
+        cout << "Select an option:\n";
+        cout << "N: Enter new record\n";
+        cout << "V: View the records\n";
+        cout << "E: Edit existing record\n";
+        cout << "D: Delete a record\n";
+        cout << "G: View daily goals\n";
+        cout << "R: Generate report\n";
+        cout << "Q: Quit\n";
+        cout << "Enter the option: ";
+        cin >> option;
+
+        sleep(1);
+        system("cls");
+
+        switch (option) {
+            case 'N':
+            case 'n':
+                sleep(1);
+                system("cls");
+                new_record();
+                calculateBMI();
+                break;
+
+            case 'V':
+            case 'v':
+                sleep(1);
+                system("cls");
+                view_record();
+                calculateBMI();
+                break;
+
+            case 'E':
+            case 'e':
+                sleep(1);
+                system("cls");
+                edit_record();
+                calculateBMI();
+                break;
+
+            case 'D':
+            case 'd':
+                sleep(1);
+                system("cls");
+                delete_record();
+                calculateBMI();
+                break;
+
+            case 'G':
+            case 'g':
+                system("color F2");
+                {
+                    for (int i = 0; i < writeIndex; ++i) {
+                        cout << "User Id " << i + 1 << ":" << endl;
+                        cout << "Please enter your desired daily goals:" << endl;
+                        cout << "Daily steps goals: " << endl;
+                        cin >> dailyGoals.dailySteps;
+                        cout << "Daily calories goal: " << endl;
+                        cin >> dailyGoals.dailyCalories;
+                        sleep(1);
+                        cout << "Your today's steps were: " << Track[i].steps << endl;
+                        cout << "Your today's calories were: " << Track[i].calories << endl;
+                        cout << "Remaining Steps: " << dailyGoals.dailySteps - Track[i].steps << endl;
+                        cout << "\nRemaining Calories: " << dailyGoals.dailyCalories - Track[i].calories << endl;
+                        count++;
+                    }
+
+                    cout << "Press Enter to go back to the main menu...";
+                    cin.ignore();
+                    cin.get();
+                    sleep(1);
+                    system("cls");
+                    system("color F4");
+                    break;
+                }
+
+            case 'R':
+            case 'r':
+                char generateReportOption;
+                system("color F0");
+                cout << "Do you want to generate a report? (Y/N): ";
+                cin >> generateReportOption;
+
+                if (generateReportOption == 'Y' || generateReportOption == 'y') {
+                    generateReport();
+                } else {
+                    cout << "Report generation canceled.\n";
+                    cout << "Press Enter to go back to the main menu...";
+                    cin.ignore();
+                    cin.get();
+                    sleep(1);
+                    system("cls");
+                }
+                break;
+
+            case 'Q':
+            case 'q':
+                cout << "Exiting program.\n";
+                break;
+
+            default:
+                cout << "Invalid option. Please try again.\n";
+        }
+
+    } while (option != 'Q' && option != 'q');
+
+    return 0;
+}
